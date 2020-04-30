@@ -5,8 +5,8 @@ const typeDefs = gql`
     
     type Pokemon {
         name: String
-        moves: Array
-        abilities: Array
+        moves: [String]
+        abilities: [String]
     }
 
     type Query {
@@ -36,3 +36,9 @@ const resolvers = {
         }
     }
 }
+
+const server = new ApolloServer({ typeDefs, resolvers })
+
+server.listen().then(({ url }) => {
+    console.log(`Server started  at ${url}`)
+})
