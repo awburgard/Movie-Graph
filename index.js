@@ -9,6 +9,10 @@ const typeDefs = gql`
         abilities: Array
     }
 
+    type Query {
+        pokemons: [Pokemon]
+    }
+
 `;
 
 const pokemon = [
@@ -23,3 +27,12 @@ const pokemon = [
         abilities: ['Cutie Pie'],
     },
 ]
+
+
+const resolvers = {
+    Query: {
+        pokemons: () => {
+            return pokemon
+        }
+    }
+}
