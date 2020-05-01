@@ -2,26 +2,45 @@ const { ApolloServer, gql } = require('apollo-server');
 
 // Schema is the shape of the data
 const typeDefs = gql`
+
+    enum Status {
+        CAUGHT
+        NOT_CAUGHT
+        SEEN
+        NOT_SEEN
+    }
+
+    type Characteristics {
+        id: ID!
+        gene_modulo: Int
+        possible_values: [Int]
+    }
     
     type Pokemon {
+        id: ID!
         name: String
         moves: [String]
         abilities: [String]
+        characteristics: Characteristics
+        status: [Status]
     }
 
     type Query {
         pokemons: [Pokemon]
+        pokemon(id: ID): Pokemon
     }
 
 `;
 
-const pokemon = [
+const pokemonArray = [
     {
+        id: 1,
         name: 'Pikachu',
         moves: ['Lightning Strike', 'Shock'],
         abilities: ['Loveable'],
     },
     {
+        id: 2,
         name: 'Bulbasaur',
         moves: ['Vine Whip', 'Grass Attack'],
         abilities: ['Cutie Pie'],
@@ -32,7 +51,13 @@ const pokemon = [
 const resolvers = {
     Query: {
         pokemons: () => {
-            return pokemon
+            return pokemonArray
+        },
+        pokemon: (obj, {id}, context, info) => {
+            const foundPokemon = pokemonArray.find((pokemon) => {
+                return pokemon.id == id
+            })
+            return foundPokemon
         }
     }
 }
