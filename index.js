@@ -22,7 +22,7 @@ const typeDefs = gql`
         moves: [String]
         abilities: [String]
         characteristics: Characteristics
-        status: [Status]
+        status: Status
     }
 
     type Query {
@@ -38,6 +38,7 @@ const pokemonArray = [
         name: 'Pikachu',
         moves: ['Lightning Strike', 'Shock'],
         abilities: ['Loveable'],
+        status: 'CAUGHT'
     },
     {
         id: 2,
