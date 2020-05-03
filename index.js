@@ -1,72 +1,108 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer, gql } = require("apollo-server");
+const { GraphQLScalarType } = require("graphql");
+const { Kind } = require("graphql/language");
 
-// Schema is the shape of the data
 const typeDefs = gql`
+  scalar Date
 
-    enum Status {
-        CAUGHT
-        NOT_CAUGHT
-        SEEN
-        NOT_SEEN
-    }
+  enum Status {
+    WATCHED
+    INTERESTED
+    NOT_INTERESTED
+    UNKNOWN
+  }
 
-    type Characteristics {
-        id: ID!
-        gene_modulo: Int
-        possible_values: [Int]
-    }
-    
-    type Pokemon {
-        id: ID!
-        name: String
-        moves: [String]
-        abilities: [String]
-        characteristics: Characteristics
-        status: Status
-    }
+  type Actor {
+    id: ID!
+    name: String!
+  }
 
-    type Query {
-        pokemons: [Pokemon]
-        pokemon(id: ID): Pokemon
-    }
+  type Movie {
+    id: ID!
+    title: String!
+    releaseDate: Date
+    rating: Int
+    status: Status
+    actor: [Actor]
+  }
 
+  type Query {
+    movies: [Movie]
+    movie(id: ID): Movie
+  }
 `;
 
-const pokemonArray = [
+const movies = [
     {
-        id: 1,
-        name: 'Pikachu',
-        moves: ['Lightning Strike', 'Shock'],
-        abilities: ['Loveable'],
-        status: 'CAUGHT'
+        id: "1",
+        title: "Aladdin",
+        releaseDate: new Date("11-25-1992"),
+        rating: 5,
+        actor: [
+            {
+                id: "1",
+                name: "Robin Williams"
+            }
+        ]
     },
     {
-        id: 2,
-        name: 'Bulbasaur',
-        moves: ['Vine Whip', 'Grass Attack'],
-        abilities: ['Cutie Pie'],
-    },
-]
-
+        id: "2",
+        title: "Hacksaw Ridge",
+        releaseDate: new Date("11-04-2016"),
+        rating: 5,
+        actor: [
+            {
+                id: "1",
+                name: "Andrew Garfield"
+            }
+        ]
+    }
+];
 
 const resolvers = {
     Query: {
-        pokemons: () => {
-            return pokemonArray
+        movies: () => {
+            return movies;
         },
-        pokemon: (obj, { id }, context, info) => {
-            const foundPokemon = pokemonArray.find((pokemon) => {
-                return pokemon.id == id
-            })
-            return foundPokemon
+
+        movie: (obj, { id }, context, info) => {
+            const foundMovie = movies.find(movie => {
+                return movie.id === id;
+            });
+            return foundMovie;
         }
-    }
-}
+    },
+    Date: new GraphQLScalarType({
+        name: "Date",
+        description: "it's a date, deal with it",
+        parseValue(value) {
+            // value from the client
+            return new Date(value);
+        },
+        serialize(value) {
+            // value sent to the client
+            return value.getTime();
+        },
+        parseLiteral(ast) {
+            if (ast.kind === Kind.INT) {
+                return new Date(ast.value);
+            }
+            return null;
+        }
+    })
+};
 
-const server = new ApolloServer({ typeDefs, resolvers, introspection: true, playground: true })
+const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    introspection: true,
+    playground: true
+});
 
-server.listen({
-    port: process.env.PORT || 4000
-}).then(({ url }) => {
-    console.log(`Server started  at ${url}`)
-})
+server
+    .listen({
+        port: process.env.PORT || 4000
+    })
+    .then(({ url }) => {
+        console.log(`Server started at ${url}`);
+    });
