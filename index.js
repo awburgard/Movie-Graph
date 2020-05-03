@@ -32,6 +32,17 @@ const typeDefs = gql`
   }
 `;
 
+const actors = [
+    {
+        id: 'williams',
+        name: 'Robin Williams'
+    },
+    {
+        id: 'garfield',
+        name: 'Andrew Garfield'
+    }
+]
+
 const movies = [
     {
         id: "1",
@@ -40,8 +51,7 @@ const movies = [
         rating: 5,
         actor: [
             {
-                id: "1",
-                name: "Robin Williams"
+                id: "williams"
             }
         ]
     },
@@ -52,8 +62,7 @@ const movies = [
         rating: 5,
         actor: [
             {
-                id: "1",
-                name: "Andrew Garfield"
+                id: "garfield"  
             }
         ]
     }
@@ -72,9 +81,20 @@ const resolvers = {
             return foundMovie;
         }
     },
+
+    Movie: {
+        actor: (obj, args, context) => {
+            const actorId = obj.actor.map(actor => actor.id)
+            const filteredActors = actors.filter(actor => {
+                return actorId.includes(actor.id)
+            })
+            return filteredActors
+        }
+    },
+
     Date: new GraphQLScalarType({
         name: "Date",
-        description: "it's a date, deal with it",
+        description: "Date returned as a string",
         parseValue(value) {
             // value from the client
             return new Date(value);
