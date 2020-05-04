@@ -67,7 +67,7 @@ const movies = [
         rating: 5,
         actor: [
             {
-                id: "garfield"  
+                id: "garfield"
             }
         ]
     }
@@ -98,9 +98,14 @@ const resolvers = {
     },
 
     Mutation: {
-        addMovie: (obj, args, context) => {
+        addMovie: (obj, { id, title, releaseDate }, context) => {
             const newMoviesList = [
                 ...movies,
+                {
+                    id,
+                    title,
+                    releaseDate
+                }
 
             ]
             return newMoviesList
