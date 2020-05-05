@@ -111,14 +111,18 @@ const resolvers = {
     },
 
     Mutation: {
-        addMovie: (obj, { movie }, context) => {
-            const newMoviesList = [
-                ...movies,
-                movie
-            ]
-            return newMoviesList
+        addMovie: (obj, { movie }, { userId }) => {
+            if (userId) {
+                const newMoviesList = [
+                    ...movies,
+                    movie
+                ];
+                return newMoviesList;
+            }
+            return movies;
         }
     },
+
 
     Date: new GraphQLScalarType({
         name: "Date",
@@ -144,7 +148,15 @@ const server = new ApolloServer({
     typeDefs,
     resolvers,
     introspection: true,
-    playground: true
+    playground: true,
+    context: ({ req }) => {
+        const fakeUser = {
+            userId: 'user1'
+        }
+        return {
+            ...fakeUser
+        }
+    }
 });
 
 server
