@@ -3,6 +3,7 @@ const { GraphQLScalarType } = require("graphql");
 const { Kind } = require("graphql/language");
 
 const typeDefs = gql`
+
   scalar Date
 
   enum Status {
