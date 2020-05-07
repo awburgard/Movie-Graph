@@ -1,6 +1,12 @@
+require('dotenv').config()
 const { ApolloServer, gql } = require("apollo-server");
 const { GraphQLScalarType } = require("graphql");
 const { Kind } = require("graphql/language");
+const mongoose = require('mongoose');
+
+mongoose.connect("mongodb+srv://<awburgard>:<Am31718!>@cluster0-3rqc6.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true });
+const db = mongoose.connection;
+
 
 const typeDefs = gql`
 
@@ -160,10 +166,14 @@ const server = new ApolloServer({
     }
 });
 
-server
-    .listen({
-        port: process.env.PORT || 4000
-    })
-    .then(({ url }) => {
-        console.log(`Server started at ${url}`);
-    });
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    console.log('DB connected')
+    server
+        .listen({
+            port: process.env.PORT || 4000
+        })
+        .then(({ url }) => {
+            console.log(`Server started at ${url}`);
+        });
+});
