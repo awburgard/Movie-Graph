@@ -4,7 +4,7 @@ const { GraphQLScalarType } = require("graphql");
 const { Kind } = require("graphql/language");
 const mongoose = require('mongoose');
 
-mongoose.connect("mongodb+srv://<awburgard>:<Am31718!>@cluster0-3rqc6.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGO, { useNewUrlParser: true });
 const db = mongoose.connection;
 
 
