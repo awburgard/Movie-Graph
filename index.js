@@ -7,6 +7,16 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO, { useNewUrlParser: true });
 const db = mongoose.connection;
 
+const moiveSchema = new mongoose.Schema({
+    title: String,
+    releaseDate: Date,
+    rating: Number,
+    status: String,
+    actorIds: [String]
+});
+
+var Movie = mongoose.model('Movie', moiveSchema);
+
 
 const typeDefs = gql`
 
@@ -95,15 +105,24 @@ const movies = [
 
 const resolvers = {
     Query: {
-        movies: () => {
-            return movies;
+        movies: async () => {
+            try {
+                const allMovies = await Movie.find()
+                return allMovies;
+            } catch (e) {
+                console.log(`error: ${e}`)
+                return []
+            }
         },
 
-        movie: (obj, { id }, context, info) => {
-            const foundMovie = movies.find(movie => {
-                return movie.id === id;
-            });
-            return foundMovie;
+        movie: async (obj, { id }) => {
+            try {
+                const foundMovie = await Movie.findById(id)
+                return foundMovie;
+            } catch (e) {
+                console.log(`error: ${e}`)
+                return {}
+            }
         }
     },
 
@@ -118,15 +137,20 @@ const resolvers = {
     },
 
     Mutation: {
-        addMovie: (obj, { movie }, { userId }) => {
-            if (userId) {
-                const newMoviesList = [
-                    ...movies,
-                    movie
-                ];
-                return newMoviesList;
+        addMovie: async (obj, { movie }, { userId }) => {
+            try {
+                if (userId) {
+                    await Movie.create({
+                        ...movie
+                    })
+                    const allMovies = await Movie.find()
+                    return allMovies;
+                }
+                return movies;
+            } catch (e) {
+                console.log(`error: ${e}`)
+                return []
             }
-            return movies;
         }
     },
 
