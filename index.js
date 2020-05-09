@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { ApolloServer, gql } = require("apollo-server");
+const { ApolloServer, gql, PubSub } = require("apollo-server");
 const { GraphQLScalarType } = require("graphql");
 const { Kind } = require("graphql/language");
 const mongoose = require('mongoose');
@@ -65,6 +65,10 @@ const typeDefs = gql`
       addMovie(movie: MovieInput): [Movie]
   }
 
+  type Subscription {
+    movieAdded: Movie
+  }
+
 `;
 
 const actors = [
@@ -103,7 +107,16 @@ const movies = [
     }
 ];
 
+const pubsub = new PubSub();
+const MOVIE_ADDED = 'MOVIE_ADDED'
+
 const resolvers = {
+    Subscription: {
+        movieAdded: {
+            subscribe: () => pubsub.asyncIterator([MOVIE_ADDED])
+        }
+    },
+
     Query: {
         movies: async () => {
             try {
@@ -140,9 +153,10 @@ const resolvers = {
         addMovie: async (obj, { movie }, { userId }) => {
             try {
                 if (userId) {
-                    await Movie.create({
+                    const newMoive = await Movie.create({
                         ...movie
                     })
+                    pubsub.publish(MOVIE_ADDED, { movieAdded: newMoive })
                     const allMovies = await Movie.find()
                     return allMovies;
                 }
